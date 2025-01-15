@@ -27,11 +27,20 @@ library utils_lib;
     use utils_lib.uart_100mhz;
         
 entity tb_uart_100mhz is
---  Port ( );
+    Generic ( STIM_ARR_LENGTH : integer := 4 );
+    --Port ( );
 end tb_uart_100mhz;
 
 architecture uut of tb_uart_100mhz is
 
+    constant clk_period : time := 10ns;
+    
+    constant G_TB_CLKS_PER_BIT          : integer := 5208;
+    constant G_TB_UART_PACK_BITWIDTH    : integer := 8;
+
+    type rx_stimulus_arr_type is array (0 to STIM_ARR_LENGTH-1) of std_logic_vector(8 downto 0);        
+        signal rx_stimulus_array : rx_stimulus_arr_type := ("110101010", "111000010", "111100100", "111111000");
+    
     signal tb_clk : std_logic := '0';
     signal tb_rst : std_logic := '0';
     
@@ -44,7 +53,9 @@ architecture uut of tb_uart_100mhz is
     signal tb_o_uart_tx_serial  : std_logic := '0';
     signal tb_o_uart_tx_inflow_err : std_logic := '0';    
 
-    constant clk_period : time := 10ns;
+
+    signal rx_stimulus_bit_index    : integer := 0;         
+    signal rx_stimulus_array_index    : integer := 0;         
 
 begin
 
@@ -52,8 +63,8 @@ tb_clk <= not(tb_clk) after clk_period/2;
 
 UUT_UART_100MHZ: entity utils_lib.uart_100mhz(rtl)
     generic map( 
-        G_CLKS_PER_BIT      => 5208,
-        G_UART_PACK_BITWIDTH=> 8
+        G_CLKS_PER_BIT      => G_TB_CLKS_PER_BIT,
+        G_UART_PACK_BITWIDTH=> G_TB_UART_PACK_BITWIDTH
     ) 
     port map( 
         sys_clk         => tb_clk,
@@ -73,7 +84,24 @@ UUT_UART_100MHZ: entity utils_lib.uart_100mhz(rtl)
 
 STIMULUS: process
     begin
-        -- do stimulus proc tmrw
+
+    -- driving serial line high when nothing being rx/tx'd
+    tb_i_uart_rx_serial <= '1';
+    
+    wait for 10*clk_period;
+
+    for rx_stimulus_array_index in 0 to STIM_ARR_LENGTH-1 loop
+        for rx_stimulus_bit_index in 0 to 8 loop
+            tb_i_uart_rx_serial <= rx_stimulus_array(rx_stimulus_array_index)(rx_stimulus_bit_index);
+            wait for G_TB_CLKS_PER_BIT * clk_period;
+        end loop;
+        -- driving serial line back high and waiting for a bit
+        tb_i_uart_rx_serial <= '1';
+        wait for (G_TB_CLKS_PER_BIT/4) * clk_period;        
+    end loop;      
+    
+    wait for 10*clk_period;
+
     wait;
 end process;            
 
