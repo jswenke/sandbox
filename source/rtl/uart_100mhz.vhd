@@ -59,7 +59,7 @@ architecture rtl of uart_100mhz is
         
     signal reg0_uart_serial_in : std_logic;
     signal reg1_uart_serial_in : std_logic; 
-    signal reg_uart_data_packed: std_logic_vector(G_UART_PACK_BITWIDTH-1 downto 0);
+    signal reg_uart_data_packed: std_logic_vector(G_UART_PACK_BITWIDTH-1 downto 0) := (others=>'0');
     signal reg_uart_rx_done_flag : std_logic := '0';          
     
     signal ctr_clk_rxcount      : integer := 0;
@@ -123,7 +123,7 @@ begin
                     if(ctr_clk_txcount < G_CLKS_PER_BIT-1) then
                         ctr_clk_txcount     <= ctr_clk_txcount + 1;
                     else
-                        if(uart_tx_bit_index < G_UART_PACK_BITWIDTH - 1) then
+                        if(uart_tx_bit_index < G_UART_PACK_BITWIDTH) then
                             uart_tx_bit_index <= uart_tx_bit_index + 1;
                             ctr_clk_txcount     <= 0;                        
                             o_uart_tx_serial    <= reg0_uart_tx_dword_in(uart_tx_bit_index + 1); 
@@ -181,7 +181,6 @@ begin
                         end if;
                         
                     when ST_uart_rx_start =>
-                    -- checking the middle of start bit to verify still low, helps avoid noise trigger falling edge
                         if(ctr_clk_rxcount >= (G_CLKS_PER_BIT/2)-1) then
                             if(reg1_uart_serial_in = '0') then
                                 PS_uart_rx         <= ST_uart_rxing_bits;
@@ -199,7 +198,7 @@ begin
                         else                                                                        
                             ctr_clk_rxcount <= 0;                                                            
                             
-                            if(uart_rx_bit_index < G_UART_PACK_BITWIDTH-1) then                                
+                            if(uart_rx_bit_index < G_UART_PACK_BITWIDTH) then                                
                                 reg_uart_data_packed(uart_rx_bit_index) <= reg1_uart_serial_in;
                                 uart_rx_bit_index <= uart_rx_bit_index + 1;    
                             else
@@ -212,7 +211,8 @@ begin
                         if(ctr_clk_rxcount < G_CLKS_PER_BIT-1) then
                             ctr_clk_rxcount <= ctr_clk_rxcount + 1;
                         else
-                            reg_uart_rx_done_flag <= '1';      
+                            reg_uart_rx_done_flag <= '1';  
+                            PS_uart_rx <= ST_uart_rx_clear;  
                         end if;
                         
                     when ST_uart_rx_clear => 
