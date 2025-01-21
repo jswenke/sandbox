@@ -26,12 +26,12 @@ library IEEE;
 library utils_lib;
     use utils_lib.uart_100mhz;
         
-entity tb_uart_100mhz is
+entity tb_uart_rx is
     Generic ( STIM_ARR_LENGTH : integer := 4 );
     --Port ( );
-end tb_uart_100mhz;
+end tb_uart_rx;
 
-architecture uut of tb_uart_100mhz is
+architecture uut of tb_uart_rx is
 
     constant clk_period : time := 10ns;
     

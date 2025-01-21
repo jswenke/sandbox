@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_uart_tx_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="tb_uart_tx" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="812528333000fs"></ZoomStartTime>
+      <ZoomEndTime time="4522528333001fs"></ZoomEndTime>
+      <Cursor1Time time="2927528333000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="175"></NameColumnWidth>
+      <ValueColumnWidth column_width="114"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="10" />
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/sys_clk" type="logic">
+      <obj_property name="ElementShortName">sys_clk</obj_property>
+      <obj_property name="ObjectShortName">sys_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/sys_rst" type="logic">
+      <obj_property name="ElementShortName">sys_rst</obj_property>
+      <obj_property name="ObjectShortName">sys_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/i_uart_tx_dword" type="array">
+      <obj_property name="ElementShortName">i_uart_tx_dword[7:0]</obj_property>
+      <obj_property name="ObjectShortName">i_uart_tx_dword[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/i_uart_tx_dword_dv" type="logic">
+      <obj_property name="ElementShortName">i_uart_tx_dword_dv</obj_property>
+      <obj_property name="ObjectShortName">i_uart_tx_dword_dv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/o_uart_tx_serial" type="logic">
+      <obj_property name="ElementShortName">o_uart_tx_serial</obj_property>
+      <obj_property name="ObjectShortName">o_uart_tx_serial</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/o_uart_tx_inflow_err" type="logic">
+      <obj_property name="ElementShortName">o_uart_tx_inflow_err</obj_property>
+      <obj_property name="ObjectShortName">o_uart_tx_inflow_err</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/PS_uart_tx" type="other">
+      <obj_property name="ElementShortName">PS_uart_tx</obj_property>
+      <obj_property name="ObjectShortName">PS_uart_tx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/ctr_clk_txcount" type="other">
+      <obj_property name="ElementShortName">ctr_clk_txcount</obj_property>
+      <obj_property name="ObjectShortName">ctr_clk_txcount</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/uart_tx_bit_index" type="other">
+      <obj_property name="ElementShortName">uart_tx_bit_index</obj_property>
+      <obj_property name="ObjectShortName">uart_tx_bit_index</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_uart_tx/UUT_UART_100MHZ/reg0_uart_tx_busy" type="logic">
+      <obj_property name="ElementShortName">reg0_uart_tx_busy</obj_property>
+      <obj_property name="ObjectShortName">reg0_uart_tx_busy</obj_property>
+   </wvobject>
+</wave_config>

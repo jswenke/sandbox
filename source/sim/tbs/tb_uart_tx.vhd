@@ -27,7 +27,7 @@ library utils_lib;
     use utils_lib.uart_100mhz;
         
 entity tb_uart_tx is
-    Generic ( STIM_ARR_LENGTH : integer := 4 );
+    Generic ( STIM_ARR_LENGTH : integer := 6 );
     --Port ( );
 end tb_uart_tx;
 
@@ -39,10 +39,10 @@ architecture uut of tb_uart_tx is
     constant G_TB_UART_PACK_BITWIDTH    : integer := 8;
 
     type stimulus_arr_dword_type is array (0 to STIM_ARR_LENGTH-1) of std_logic_vector(7 downto 0);        
-        signal tx_dword_stimulus_array : stimulus_arr_dword_type := ("10000001", "11000001", "11100001", "11110001");
+        signal tx_dword_stimulus_array : stimulus_arr_dword_type := ("10000001", "11000001", "11100001", "11110001", "10011001", "01010101");
         
     type stimulus_arr_dword_dv_type is array (0 to STIM_ARR_LENGTH-1) of std_logic;
-        signal tx_dword_dv_stimulus_array : stimulus_arr_dword_dv_type := ('1', '0', '1', '0');         
+        signal tx_dword_dv_stimulus_array : stimulus_arr_dword_dv_type := ('1', '0', '1', '0', '1', '1');         
     
     signal tb_clk : std_logic := '0';
     signal tb_rst : std_logic := '0';
@@ -90,6 +90,10 @@ UUT_UART_100MHZ: entity utils_lib.uart_100mhz(rtl)
 STIMULUS_TB: process
     begin
    
+    wait for clk_period;
+    tb_rst <= '1';
+    wait for clk_period;
+    tb_rst <= '0';
     tb_i_uart_tx_dword      <= (others=>'0');
     tb_i_uart_tx_dword_dv   <= '0';
     
@@ -101,6 +105,8 @@ STIMULUS_TB: process
     for tx_stim_dword_index in 0 to STIM_ARR_LENGTH-1 loop
         tb_i_uart_tx_dword      <= tx_dword_stimulus_array(tx_stim_dword_index);
         tb_i_uart_tx_dword_dv   <= tx_dword_dv_stimulus_array(tx_stim_dword_index);
+        wait for clk_period;
+        tb_i_uart_tx_dword_dv   <= '0';
         wait for (G_TB_CLKS_PER_BIT * clk_period) * 11;
     end loop;        
     
