@@ -27,7 +27,7 @@ library utils_lib;
     use utils_lib.uart_100mhz;
         
 entity tb_uart_tx is
-    Generic ( STIM_ARR_LENGTH : integer := 4 );
+    Generic ( STIM_ARR_LENGTH : integer := 6 );
     --Port ( );
 end tb_uart_tx;
 
@@ -38,8 +38,11 @@ architecture uut of tb_uart_tx is
     constant G_TB_CLKS_PER_BIT          : integer := 5208;
     constant G_TB_UART_PACK_BITWIDTH    : integer := 8;
 
-    type rx_stimulus_arr_type is array (0 to STIM_ARR_LENGTH-1) of std_logic_vector(8 downto 0);        
-        signal rx_stimulus_array : rx_stimulus_arr_type := ("110101010", "111000010", "111100100", "111111000");
+    type stimulus_arr_dword_type is array (0 to STIM_ARR_LENGTH-1) of std_logic_vector(7 downto 0);        
+        signal tx_dword_stimulus_array : stimulus_arr_dword_type := ("10000001", "11000001", "11100001", "11110001", "10011001", "01010101");
+        
+    type stimulus_arr_dword_dv_type is array (0 to STIM_ARR_LENGTH-1) of std_logic;
+        signal tx_dword_dv_stimulus_array : stimulus_arr_dword_dv_type := ('1', '0', '1', '0', '1', '1');         
     
     signal tb_clk : std_logic := '0';
     signal tb_rst : std_logic := '0';
@@ -53,9 +56,11 @@ architecture uut of tb_uart_tx is
     signal tb_o_uart_tx_serial  : std_logic := '0';
     signal tb_o_uart_tx_inflow_err : std_logic := '0';    
 
+--    signal rx_stimulus_bit_index    : integer := 0;         
+--    signal rx_stimulus_array_index    : integer := 0;         
 
-    signal rx_stimulus_bit_index    : integer := 0;         
-    signal rx_stimulus_array_index    : integer := 0;         
+    signal tx_stim_dword_index  : integer := 0;         
+    signal tx_stim_dvalid_index : integer := 0;    
 
 begin
 
@@ -84,21 +89,26 @@ UUT_UART_100MHZ: entity utils_lib.uart_100mhz(rtl)
 
 STIMULUS_TB: process
     begin
-
-    -- driving serial line high when nothing being rx/tx'd
-    tb_i_uart_rx_serial <= '1';
+   
+    wait for clk_period;
+    tb_rst <= '1';
+    wait for clk_period;
+    tb_rst <= '0';
+    tb_i_uart_tx_dword      <= (others=>'0');
+    tb_i_uart_tx_dword_dv   <= '0';
     
     wait for 10*clk_period;
-
---    for rx_stimulus_array_index in 0 to STIM_ARR_LENGTH-1 loop
---        for rx_stimulus_bit_index in 0 to 8 loop
---            tb_i_uart_rx_serial <= rx_stimulus_array(rx_stimulus_array_index)(rx_stimulus_bit_index);
---            wait for G_TB_CLKS_PER_BIT * clk_period;
---        end loop;
---        -- driving serial line back high and waiting for a bit
---        tb_i_uart_rx_serial <= '1';
---        wait for (G_TB_CLKS_PER_BIT/4) * clk_period;        
---    end loop;      
+    
+--      TX STIMULUS PROCESS
+--      Need to wait long enough for all bits of the vector to be sent over serial
+--      G_TB_CLKS_PER_BIT*CLK_PERIOD is the amount of time that it takes for one bit to be sent, and we need to send 8 + start bit, adding some buffer too       
+    for tx_stim_dword_index in 0 to STIM_ARR_LENGTH-1 loop
+        tb_i_uart_tx_dword      <= tx_dword_stimulus_array(tx_stim_dword_index);
+        tb_i_uart_tx_dword_dv   <= tx_dword_dv_stimulus_array(tx_stim_dword_index);
+        wait for clk_period;
+        tb_i_uart_tx_dword_dv   <= '0';
+        wait for (G_TB_CLKS_PER_BIT * clk_period) * 11;
+    end loop;        
     
     wait for 10*clk_period;
 

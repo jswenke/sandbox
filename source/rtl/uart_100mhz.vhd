@@ -83,66 +83,72 @@ begin
     PROC_UART_TX_FSM: process(sys_clk, sys_rst) begin
         if(rising_edge(sys_clk)) then
             if(sys_rst = '1') then
-                reg0_uart_tx_dword_in <= (others=>'0');
-            end if;
-        else
-            if(reg0_uart_tx_busy = '1' and i_uart_tx_dword_dv = '1') then
-                o_uart_tx_inflow_err <= '1';
-            end if;
-                                        
-            case PS_uart_tx is
+                reg0_uart_tx_dword_in   <= (others=>'0');
+                reg0_uart_tx_busy       <= '0';
+                o_uart_tx_serial        <= '1';  
+                ctr_clk_txcount         <= 0; 
+                o_uart_tx_inflow_err    <= '0';
                 
-                when ST_uart_tx_idle =>
-                    if(i_uart_tx_dword_dv = '1') then                                                                        
-                        reg0_uart_tx_dword_in   <= i_uart_tx_dword;
-                        reg0_uart_tx_busy       <= '1';
-                        o_uart_tx_serial        <= '0';                             
-                        ctr_clk_txcount         <= 1;   
-                         
-                        PS_uart_tx              <= ST_uart_tx_start;                                                                                                                                                           
-                    else
-                        reg0_uart_tx_dword_in   <= (others=>'0');
-                        reg0_uart_tx_busy       <= '0';
-                        o_uart_tx_serial        <= '1';  
-                        ctr_clk_txcount         <= 0;                                                                                                                                   
-                    end if;
-                
-                when ST_uart_tx_start =>
-                -- send start bit (drive serial out low for one bit cycle)
-                    if(ctr_clk_txcount < G_CLKS_PER_BIT-1) then
-                        ctr_clk_txcount <= ctr_clk_txcount + 1;
-                    else
-                        uart_tx_bit_index   <= 0;
-                        ctr_clk_txcount     <= 0;                        
-                        o_uart_tx_serial    <= reg0_uart_tx_dword_in(uart_tx_bit_index);
-                        
-                        PS_uart_tx      <= ST_uart_tx_serializing;                        
-                    end if;                                                                                                            
-                                                                                                
-                when ST_uart_tx_serializing =>
-                    if(ctr_clk_txcount < G_CLKS_PER_BIT-1) then
-                        ctr_clk_txcount     <= ctr_clk_txcount + 1;
-                    else
-                        if(uart_tx_bit_index < G_UART_PACK_BITWIDTH) then
-                            uart_tx_bit_index <= uart_tx_bit_index + 1;
-                            ctr_clk_txcount     <= 0;                        
-                            o_uart_tx_serial    <= reg0_uart_tx_dword_in(uart_tx_bit_index + 1); 
-                        else                            
-                            uart_tx_bit_index   <= 0;
-                            ctr_clk_txcount     <= 0;      
-                            o_uart_tx_serial    <= '1';
+                PS_uart_tx              <= ST_uart_tx_idle;
+            else
+                if(reg0_uart_tx_busy = '1' and i_uart_tx_dword_dv = '1') then
+                    o_uart_tx_inflow_err <= '1';
+                end if;
+                                            
+                case PS_uart_tx is
+                    
+                    when ST_uart_tx_idle =>
+                        if(i_uart_tx_dword_dv = '1') then                                                                        
+                            reg0_uart_tx_dword_in   <= i_uart_tx_dword;
+                            reg0_uart_tx_busy       <= '1';
+                            o_uart_tx_serial        <= '0';                             
+                            ctr_clk_txcount         <= 1;   
+                             
+                            PS_uart_tx              <= ST_uart_tx_start;                                                                                                                                                           
+                        else
+                            reg0_uart_tx_dword_in   <= (others=>'0');
                             reg0_uart_tx_busy       <= '0';
-
-                            PS_uart_tx      <= ST_uart_tx_idle;                                          
-                        end if;                                                
-                    end if;
-                           
---                when ST_uart_tx_stop => 
-                
-                                                                    
-                when others =>
-                
-            end case;
+                            o_uart_tx_serial        <= '1';  
+                            ctr_clk_txcount         <= 0;                                                                                                                                   
+                        end if;
+                    
+                    when ST_uart_tx_start =>
+                    -- send start bit (drive serial out low for one bit cycle)
+                        if(ctr_clk_txcount < G_CLKS_PER_BIT-1) then
+                            ctr_clk_txcount <= ctr_clk_txcount + 1;
+                        else
+                            uart_tx_bit_index   <= 0;
+                            ctr_clk_txcount     <= 0;                        
+                            o_uart_tx_serial    <= reg0_uart_tx_dword_in(0);
+                            
+                            PS_uart_tx      <= ST_uart_tx_serializing;                        
+                        end if;                                                                                                            
+                                                                                                    
+                    when ST_uart_tx_serializing =>
+                        if(ctr_clk_txcount < G_CLKS_PER_BIT-1) then
+                            ctr_clk_txcount     <= ctr_clk_txcount + 1;
+                            
+                            if(ctr_clk_txcount = 0) then
+                                uart_tx_bit_index <= uart_tx_bit_index + 1;
+                            end if;
+                        else
+                            if(uart_tx_bit_index < G_UART_PACK_BITWIDTH) then
+                                ctr_clk_txcount     <= 0;                        
+                                o_uart_tx_serial    <= reg0_uart_tx_dword_in(uart_tx_bit_index); 
+                            else                            
+                                uart_tx_bit_index   <= 0;
+                                ctr_clk_txcount     <= 0;      
+                                o_uart_tx_serial    <= '1';
+                                reg0_uart_tx_busy       <= '0';
+    
+                                PS_uart_tx      <= ST_uart_tx_idle;                                          
+                            end if;                                                
+                        end if;
+                                                                                            
+                    when others =>
+                                  
+                end case;
+            end if;
         end if;
     end process;                                                                
                                 
