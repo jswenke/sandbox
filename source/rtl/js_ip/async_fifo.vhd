@@ -26,11 +26,11 @@ library IEEE;
 library UNISIM;
     use UNISIM.VComponents.all;
 
-entity async_fifo_js is
+entity async_fifo is
 --  Port ( );
-end async_fifo_js;
+end async_fifo;
 
-architecture rtl of async_fifo_js is
+architecture rtl of async_fifo is
 
 begin
 
