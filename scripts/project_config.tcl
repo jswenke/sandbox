@@ -24,15 +24,16 @@ proc createVivadoProject {} {
 proc addHDL {} {
 
 	global PROJECT_NAME
-	global PART_TYPE
 	global sourceDir
 	
+	# design sources
 	read_vhdl [glob $sourceDir/rtl/*.vhd]
+	set_property top ${PROJECT_NAME}_top [current_fileset]
 	read_vhdl [glob $sourceDir/rtl/*/*.vhd]
 	
-	read_vhdl [glob $sourceDir/sim/tbs/*.vhd]
-	# doublecheck syntax
-	#set_property used_in_synthesis false 
+	# sim sources (tbs)
+	read_vhdl [glob $sourceDir/sim/tbs/*.vhd]	
+	set_property used_in_synthesis false [get_files $sourceDir/sim/tbs/*.vhd]
 
 }
 
@@ -42,16 +43,48 @@ proc genIP {} {
 
 proc addConstraints {} {
 	
+	global PROJECT_NAME
+	global PART_TYPE
+	global constraintsDir
+	global projectDir
+	
+	create_fileset -constrset constr_set_${PART_TYPE}_default
+	file mkdir $projectDir/${PROJECT_NAME}.srcs/constr_set_${PART_TYPE}_default
+	add_files -fileset constr_set_${PART_TYPE} $constraintsDir/default_nexysa7100t/nexysa7_constraints.xdc
+	set_property target_constrs_file $constraintsDir/default_nexysa7100t/nexysa7_constraints.xdc [get_filesets constr_set_${PART_TYPE}_default]
+	
+	create_fileset -constrset constr_set_others
+	file mkdir #projectDir/${PROJECT_NAME}.srcs/constr_set_others
+	add_files -fileset constr_set_others $constraintsDir/*.xdc
+	
 }
 
-proc doSynthesis {} {
-	# WIP
+proc runSynthesis {} {
+
+	launch_runs synth_1 -jobs 12
+	wait_on_run synth_1
+
+	if {[get_property STATUS [get_runs synth_1]] != {synth_design Complete!}} {
+		puts "Synthesis failed."
+		exit 1
+	}
 }
 
-proc doImplementation {} {
-	# WIP
+proc runImplementationAndGenBitstream {} {
+	
+	launch_runs impl_1 -to_step write_bitstream
+	wait_on_run impl_1
+	
+	set systemTime [clock seconds]
+	puts "Time now : [clock format $systemTime -format %HL:%M:%S]"
+	
+	if {[get_property STATUS [get_runs impl_1]] != {write_bitstream Complete!}} {
+		puts "Implementation failed."
+		exit 2
+	}
+	
 }
 
-proc genBitstream {} {
+proc getBitstreamImgs {} {
 	# WIP
 }
