@@ -4,9 +4,9 @@ set PROJECT_NAME sandbox
 set PART_TYPE xc7a100tcsg324-1
 
 set scriptsDir 		[file normalize [file dirname [info script]]]
-set projectDir 		[file normalize $scriptsDir/..]
-set sourceDir  		[file normalize $projectDir/source]
-set constraintsDir 	[file normalize $sourceDir/constraints]
+set projectDir 		[file normalize $scriptsDir/../project]
+set sourceDir  		[file normalize $projectDir/../source]
+set constraintsDir 	[file normalize $sourceDir/../source/constraints]
 
 
 proc createVivadoProject {} {
@@ -33,7 +33,7 @@ proc addHDL {} {
 	
 	# sim sources (tbs)
 	read_vhdl [glob $sourceDir/sim/tbs/*.vhd]	
-	set_property used_in_synthesis false [get_files $sourceDir/sim/tbs/*.vhd]
+	set_property used_in_synthesis false [get_files [glob $sourceDir/sim/tbs/*.vhd]]
 
 }
 
@@ -50,12 +50,12 @@ proc addConstraints {} {
 	
 	create_fileset -constrset constr_set_${PART_TYPE}_default
 	file mkdir $projectDir/${PROJECT_NAME}.srcs/constr_set_${PART_TYPE}_default
-	add_files -fileset constr_set_${PART_TYPE} $constraintsDir/default_nexysa7100t/nexysa7_constraints.xdc
+	add_files -fileset constr_set_${PART_TYPE}_default $constraintsDir/default_nexysa7100t/nexysa7_constraints.xdc
 	set_property target_constrs_file $constraintsDir/default_nexysa7100t/nexysa7_constraints.xdc [get_filesets constr_set_${PART_TYPE}_default]
 	
 	create_fileset -constrset constr_set_others
-	file mkdir #projectDir/${PROJECT_NAME}.srcs/constr_set_others
-	add_files -fileset constr_set_others $constraintsDir/*.xdc
+	file mkdir $projectDir/${PROJECT_NAME}.srcs/constr_set_others
+	add_files -fileset constr_set_others [glob $constraintsDir/*.xdc]
 	
 }
 
