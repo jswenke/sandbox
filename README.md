@@ -17,3 +17,7 @@ WIP
 
 1/26/25: Start looking into tying UART together with async fifo, writing the fifo, etc.
 Also look into adding a build ID functionality/register to keep track of builds when running/testing multiple
+
+1/27/25: 
+http://www.sunburst-design.com/papers/CummingsSNUG2002SJ_FIFO1.pdf
+Was reading this paper on async FIFO design, planning to follow some of the design recommendations and implement an async FIFO to test the UART RX/TX with
