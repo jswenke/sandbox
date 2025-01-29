@@ -21,3 +21,7 @@ Also look into adding a build ID functionality/register to keep track of builds 
 1/27/25: 
 http://www.sunburst-design.com/papers/CummingsSNUG2002SJ_FIFO1.pdf
 Was reading this paper on async FIFO design, planning to follow some of the design recommendations and implement an async FIFO to test the UART RX/TX with
+
+1/28/25:
+Started barebones async fifo, wrote out some signals, types, etc. Read a bit more of the sunburst paper.
+
