@@ -69,6 +69,9 @@ Was reading this paper on async FIFO design, planning to follow some of the desi
 1/28/25:
 Started barebones async fifo, wrote out some signals, types, etc. Read a bit more of the sunburst paper.
 
+1/29/25:
+Read through gray code portions of sunburst paper. Some interesting considerations and I'd like to see what the benefit to doing this for clock domain crossings is. Did a lot of constraints writing at work today so brain is mush.
+
 ### Misc.
 
 
