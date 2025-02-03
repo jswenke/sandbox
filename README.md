@@ -44,7 +44,7 @@ Same idea as adding design sources, except the filepath is `sandbox/source/simul
 Again, you may drop your files individually in there or make a folder within that filepath then add your sources.
 
 #### For constraints
-#####Update description here
+Update description here
 
 ## Acronyms
 
@@ -67,10 +67,14 @@ http://www.sunburst-design.com/papers/CummingsSNUG2002SJ_FIFO1.pdf
 Was reading this paper on async FIFO design, planning to follow some of the design recommendations and implement an async FIFO to test the UART RX/TX with
 
 1/28/25:
-Started barebones async fifo, wrote out some signals, types, etc. Read a bit more of the sunburst paper.
+Started barebones async fifo, wrote out some signals, types, etc. Read a bit more of the sunburst paper
 
 1/29/25:
-Read through gray code portions of sunburst paper. Some interesting considerations and I'd like to see what the benefit to doing this for clock domain crossings is. Did a lot of constraints writing at work today so brain is mush.
+Read through gray code portions of sunburst paper. Some interesting considerations and I'd like to see what the benefit to doing this for clock domain crossings is. Did a lot of constraints writing at work today so brain is mush
+
+2/2/25:
+Included pic of gray code counters to be implemented for the FIFO wrptr and rdptr, started working on FIFO mem
+
 
 ### Misc.
 

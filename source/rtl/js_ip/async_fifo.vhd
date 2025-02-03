@@ -61,13 +61,28 @@ end async_fifo;
 
 architecture rtl of async_fifo is
 
+    COMPONENT blk_mem_dram_0
+      PORT (
+        clka : IN STD_LOGIC;
+        ena : IN STD_LOGIC;
+        wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+        addra : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+        dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        clkb : IN STD_LOGIC;
+        addrb : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+        doutb : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+      );
+    END COMPONENT;
 
     type type_fifo is array (0 to G_FIFO_DEPTH-1) of std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
         signal fifo_inf : type_fifo := (others=>(others=>'0'));
 
     signal rd_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
+    signal rd_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
     signal wr_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
+    signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
 
+    signal wr_clk_en : std_logic_vector(0 downto 0);
 
 begin
 
@@ -82,6 +97,21 @@ begin
     begin
 
     end process;
+    
+    
+    INST_DRAM : blk_mem_dram_0
+        port map (
+            clka    => wr_clk,
+            ena     => '1',         -- double check this and weac
+            wea     => wr_clk_en,
+            addra   => wr_addr,
+            dina    => wr_din,
+            
+            clkb    => wr_clk,
+            addrb   => rd_addr,
+            doutb   => rd_dout
+        );
+    
 
 
 end rtl;
