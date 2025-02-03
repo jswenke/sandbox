@@ -11,4 +11,5 @@ project/*.xpr
 project/*.jou
 project/*.log
 project/*.txt
+source/rtl/xil_and_3rds_ip/*
 
