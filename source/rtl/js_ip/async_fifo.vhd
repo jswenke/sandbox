@@ -52,8 +52,8 @@ entity async_fifo is
         rd_dout : out std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
 
         -- status
-        full : out std_logic;
-        empty: out std_logic
+        full : inout std_logic;
+        empty: inout std_logic
 
     );
 end async_fifo;
@@ -68,7 +68,7 @@ architecture rtl of async_fifo is
         wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
         addra : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
         dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        clkb : IN STD_LOGIC;
+        clkb : IN STD_LOGIC;    
         addrb : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
         doutb : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
       );
@@ -82,18 +82,37 @@ architecture rtl of async_fifo is
     signal wr_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
     signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
 
-    signal wr_clk_en : std_logic_vector(0 downto 0);
-
+    
+    
+    -- wr/full handler signals
+    signal wr_clk_en: std_logic_vector(0 downto 0);
+    signal wr_inc   : std_logic;
+    signal wr_bin_count_reg : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wr_bin_count_next: std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    
+    
 begin
 
 
-    PROC_FIFO_WR_HANDLE : process(wr_clk, wr_rst)
-    begin
+    wr_clk_en(0) <= not(full) and wr_inc;         
 
+
+    PROC_FIFO_WR_AND_FULL_HANDLER : process(wr_clk)
+    begin
+        if(rising_edge(wr_clk)) then
+            if(wr_rst = '1') then
+                -- rsts
+            else
+                if(wr_inc = '1' and (not(full) or not(empty)) = '1') then            
+                    wr_bin_count_reg <= std_logic_vector(unsigned(wr_bin_count_reg) + 1); 
+                end if;
+                
+            end if;
+        end if;                        
     end process;
 
     
-    PROC_FIFO_RD_HANDLE : process(rd_clk, rd_rst)
+    PROC_FIFO_RD_AND_EMPTY_HANDLER : process(rd_clk, rd_rst)
     begin
 
     end process;
