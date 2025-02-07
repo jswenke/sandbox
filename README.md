@@ -75,6 +75,8 @@ Read through gray code portions of sunburst paper. Some interesting consideratio
 2/2/25:
 Included pic of gray code counters to be implemented for the FIFO wrptr and rdptr, started working on FIFO mem
 
+2/6/25:
+Wrote quick binary to gray converter and testbench for it to use in the FIFO modules, need to actually run the TB still
 
 ### Misc.
 
