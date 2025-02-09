@@ -32,9 +32,12 @@ library IEEE;
 library UNISIM;
     use UNISIM.VComponents.all;
 
+library utils_lib;
+    use utils_lib.all;
+
 entity async_fifo is
     Generic (         
-        G_FIFO_ADDRWIDTH : integer := 5; -- 2^(ADDRWIDTH-1) = FIFO Depth
+        G_FIFO_ADDRWIDTH : integer := 8; -- 2^(ADDRWIDTH-1) = FIFO Depth
         G_FIFO_DEPTH     : integer := 16;
         G_FIFO_DATAWIDTH : integer := 32
     );
@@ -80,42 +83,45 @@ architecture rtl of async_fifo is
     signal rd_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
     signal rd_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
     signal wr_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
-    signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
+    signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-2 downto 0) := (others=>'0');
 
     
     
     -- wr/full handler signals
     signal wr_clk_en: std_logic_vector(0 downto 0);
     signal wr_inc   : std_logic;
+    
     signal wr_bin_count_reg : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal wr_bin_count_next: std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    
+    signal wr_gray_count_reg : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wr_gray_count_next: std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     
 begin
 
 
     wr_clk_en(0) <= not(full) and wr_inc;         
 
-
-    PROC_FIFO_WR_AND_FULL_HANDLER : process(wr_clk)
-    begin
-        if(rising_edge(wr_clk)) then
-            if(wr_rst = '1') then
-                -- rsts
-            else
-                if(wr_inc = '1' and (not(full) or not(empty)) = '1') then            
-                    wr_bin_count_reg <= std_logic_vector(unsigned(wr_bin_count_reg) + 1); 
-                end if;
+    -- FIX WR_ADDR LENGTHS
+    INST_WRPTR_AND_FULL_HANDLER : entity utils_lib.async_fifo_wrptr_and_full_handler(rtl)
+        generic map (
+                G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
+        )
+        port map ( 
+                clk     => wr_clk,
+                rst_n   => wr_rst,
                 
-            end if;
-        end if;                        
-    end process;
+                inc     => wr_inc,
+                full    => full,
+                
+                ptr     => wr_pntr,
+                addrbin => wr_addr             
+        );
 
     
-    PROC_FIFO_RD_AND_EMPTY_HANDLER : process(rd_clk, rd_rst)
-    begin
+--    PROC_FIFO_RD_AND_EMPTY_HANDLER : process(rd_clk, rd_rst)
+--    begin
 
-    end process;
+--    end process;
     
     
     INST_DRAM : blk_mem_dram_0
