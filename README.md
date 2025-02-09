@@ -22,8 +22,8 @@ Targets:
 ### Building on Linux or Windows with Git Bash CMD
 1. Assuming your current file location is inside the cloned repo, perform the following commands in git bash or linux console to build the project: 
 ```
-# COMMENT (do not copy this line) :  on Windows, Xilinx folder path is likely /c/Xilinx/Vivado/2022.2
-export XILINX_VIVADO=<YOUR_PATH_TO_XILINX_FOLDER_HERE>/Xilinx/Vivado/2022.2
+# COMMENT (do not copy this line) :  on Windows, Xilinx folder path is likely /c/Xilinx/Vivado/2019.1
+export XILINX_VIVADO=<YOUR_PATH_TO_XILINX_FOLDER_HERE>/Xilinx/Vivado/2019.1
 ./scripts/build.sh
 ```
 2. Wait for project to build

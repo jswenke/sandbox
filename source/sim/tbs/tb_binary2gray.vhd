@@ -66,6 +66,15 @@ STIMULUS : process
         tb_bin_vec <= X"A7";
         wait for 10ns;
         
+        tb_bin_vec <= X"BB";
+        wait for 10ns;
+        
+        tb_bin_vec <= X"50";
+        wait for 10ns;        
+
+        tb_bin_vec <= X"A7";
+        wait for 10ns;
+        
     wait;
 end process;    
 
