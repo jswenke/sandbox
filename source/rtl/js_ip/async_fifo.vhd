@@ -35,6 +35,7 @@ library UNISIM;
 library utils_lib;
     use utils_lib.all;
 
+
 entity async_fifo is
     Generic (         
         G_FIFO_ADDRWIDTH : integer := 8; -- 2^(ADDRWIDTH-1) = FIFO Depth
@@ -44,13 +45,13 @@ entity async_fifo is
     Port ( 
         -- write
         wr_clk  : in std_logic;
-        wr_rst  : in std_logic;
+        wr_rst_n: in std_logic;
         wr_en   : in std_logic;
         wr_din  : in std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
               
         -- read
         rd_clk  : in std_logic;
-        rd_rst  : in std_logic;
+        rd_rst_n: in std_logic;
         rd_en   : in std_logic;
         rd_dout : out std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
 
@@ -91,37 +92,83 @@ architecture rtl of async_fifo is
     signal wr_clk_en: std_logic_vector(0 downto 0);
     signal wr_inc   : std_logic;
     
-    signal wr_bin_count_reg : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_bin_count_next: std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_gray_count_reg : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_gray_count_next: std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal rd_inc   : std_logic;
+
+    
+    signal wr_bin_count_reg     : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wr_bin_count_next    : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wr_gray_count_reg    : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wr_gray_count_next   : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    
+    signal wrsynced_rdptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal rdptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal rdptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    
+    signal rdsynced_wrptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wrptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wrptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    
     
 begin
 
 
     wr_clk_en(0) <= not(full) and wr_inc;         
 
+
+    PROC_SYNC_RDPTR_TO_WRCLK : process(wr_clk)
+    begin  
+        if(rising_edge(wr_clk)) then
+            rdptr_reg0      <= rd_pntr;
+            rdptr_reg1      <= rdptr_reg0;
+            wrsynced_rdptr  <= rdptr_reg1;
+        end if;
+    end process;        
+    
+    
+    PROC_SYNC_WRPTR_TO_RDCLK : process(rd_clk)
+    begin  
+        if(rising_edge(rd_clk)) then
+            wrptr_reg0      <= wr_pntr;
+            wrptr_reg1      <= wrptr_reg0;
+            rdsynced_wrptr  <= wrptr_reg1;
+        end if;
+    end process;
+    
+    
     -- FIX WR_ADDR LENGTHS
     INST_WRPTR_AND_FULL_HANDLER : entity utils_lib.async_fifo_wrptr_and_full_handler(rtl)
         generic map (
-                G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
+            G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
         )
         port map ( 
-                clk     => wr_clk,
-                rst_n   => wr_rst,
-                
-                inc     => wr_inc,
-                full    => full,
-                
-                ptr     => wr_pntr,
-                addrbin => wr_addr             
+            clk             => wr_clk,
+            rst_n           => wr_rst_n,
+            inc             => wr_inc,
+            
+            wrsynced_rdptr  => wrsynced_rdptr,
+            full            => full,
+            
+            wrptr           => wr_pntr,
+            addrbin         => wr_addr             
         );
+        
 
-    
---    PROC_FIFO_RD_AND_EMPTY_HANDLER : process(rd_clk, rd_rst)
---    begin
-
---    end process;
+    -- FIX RD_ADDR LENGTHS    
+    INST_RDPTR_AND_EMPTY_HANDLER : entity utils_lib.async_fifo_rdptr_and_empty_handler(rtl)
+        generic map (
+            G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
+        )
+        port map ( 
+            clk             => rd_clk,
+            rst_n           => rd_rst_n,
+            inc             => rd_inc,
+            
+            rdsynced_wrptr  => rdsynced_wrptr,
+            empty           => empty,
+            
+            rdptr           => rd_pntr,
+            addrbin         => rd_addr             
+        );        
     
     
     INST_DRAM : blk_mem_dram_0
