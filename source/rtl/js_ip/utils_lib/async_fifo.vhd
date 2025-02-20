@@ -32,13 +32,16 @@ library IEEE;
 library UNISIM;
     use UNISIM.VComponents.all;
 
+Library xpm;
+    use xpm.vcomponents.all;
+
 library utils_lib;
     use utils_lib.all;
 
 
 entity async_fifo is
     Generic (         
-        G_FIFO_ADDRWIDTH : integer := 8; -- 2^(ADDRWIDTH-1) = FIFO Depth
+        G_FIFO_ADDRWIDTH : integer := 4; -- 2^(ADDRWIDTH-1) = FIFO Depth
         G_FIFO_DEPTH     : integer := 16;
         G_FIFO_DATAWIDTH : integer := 32
     );
@@ -46,7 +49,7 @@ entity async_fifo is
         -- write
         wr_clk  : in std_logic;
         wr_rst_n: in std_logic;
-        wr_en   : in std_logic;
+        wr_en   : in std_logic_vector(0 downto 0);
         wr_din  : in std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
               
         -- read
@@ -64,6 +67,7 @@ end async_fifo;
 
 
 architecture rtl of async_fifo is
+
 
     COMPONENT blk_mem_dram_0
       PORT (
@@ -87,11 +91,9 @@ architecture rtl of async_fifo is
     signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-2 downto 0) := (others=>'0');
 
     
-    
     -- wr/full handler signals
-    signal wr_clk_en: std_logic_vector(0 downto 0);
+    signal wr_clk_en: std_logic;
     signal wr_inc   : std_logic;
-    
     signal rd_inc   : std_logic;
 
     
@@ -103,6 +105,8 @@ architecture rtl of async_fifo is
     signal wrsynced_rdptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal rdptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal rdptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal wrsynced_rd_rst_n    : std_logic;
+    signal rd_rst_n_reg0        : std_logic;
     
     signal rdsynced_wrptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal wrptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
@@ -112,30 +116,37 @@ architecture rtl of async_fifo is
 begin
 
 
-    wr_clk_en(0) <= not(full) and wr_inc;         
+    wr_clk_en <= not(full) and wr_inc;         
 
 
-    PROC_SYNC_RDPTR_TO_WRCLK : process(wr_clk)
+    PROC_SYNC_RDPTR_TO_WRCLK : process(wr_clk, wr_rst_n)
     begin  
-        if(rising_edge(wr_clk)) then
-            rdptr_reg0      <= rd_pntr;
-            rdptr_reg1      <= rdptr_reg0;
-            wrsynced_rdptr  <= rdptr_reg1;
+        if(wr_rst_n = '0') then
+            rdptr_reg0      <= (others=>'0');
+            wrsynced_rdptr  <= (others=>'0');
+        else            
+            if(rising_edge(wr_clk)) then
+                rdptr_reg0      <= rd_pntr;
+                wrsynced_rdptr  <= rdptr_reg0;
+            end if;
         end if;
     end process;        
     
     
-    PROC_SYNC_WRPTR_TO_RDCLK : process(rd_clk)
+    PROC_SYNC_WRPTR_TO_RDCLK : process(rd_clk, rd_rst_n)
     begin  
-        if(rising_edge(rd_clk)) then
-            wrptr_reg0      <= wr_pntr;
-            wrptr_reg1      <= wrptr_reg0;
-            rdsynced_wrptr  <= wrptr_reg1;
-        end if;
+        if(rd_rst_n = '0') then
+            wrptr_reg0      <= (others=>'0');
+            rdsynced_wrptr  <= (others=>'0');
+        else                        
+            if(rising_edge(rd_clk)) then
+                wrptr_reg0      <= wr_pntr;
+                rdsynced_wrptr  <= wrptr_reg0;
+            end if;
+        end if;            
     end process;
     
     
-    -- FIX WR_ADDR LENGTHS
     INST_WRPTR_AND_FULL_HANDLER : entity utils_lib.async_fifo_wrptr_and_full_handler(rtl)
         generic map (
             G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
@@ -153,7 +164,6 @@ begin
         );
         
 
-    -- FIX RD_ADDR LENGTHS    
     INST_RDPTR_AND_EMPTY_HANDLER : entity utils_lib.async_fifo_rdptr_and_empty_handler(rtl)
         generic map (
             G_FIFO_ADDRWIDTH => G_FIFO_ADDRWIDTH
@@ -171,19 +181,37 @@ begin
         );        
     
     
-    INST_DRAM : blk_mem_dram_0
+    INST_XPM_MEMORY_SDPRAM : xpm_memory_sdpram
+        generic map (
+            ADDR_WIDTH_A         => G_FIFO_ADDRWIDTH,
+            ADDR_WIDTH_B         => G_FIFO_ADDRWIDTH,
+            MEMORY_SIZE          => G_FIFO_DATAWIDTH * G_FIFO_DEPTH,
+            READ_DATA_WIDTH_B    => G_FIFO_DATAWIDTH,
+            WRITE_DATA_WIDTH_A   => G_FIFO_DATAWIDTH,
+            BYTE_WRITE_WIDTH_A   => G_FIFO_DATAWIDTH                -- word-long write
+        )
         port map (
-            clka    => wr_clk,
-            ena     => '1',         -- double check this and weac
-            wea     => wr_clk_en,
-            addra   => wr_addr,
-            dina    => wr_din,
-            
-            clkb    => wr_clk,
-            addrb   => rd_addr,
-            doutb   => rd_dout
+            clka            => wr_clk,
+            clkb            => rd_clk,
+            rstb            => rd_rst_n,
+
+            addra           => wr_addr,
+            dina            => wr_din,
+            ena             => wr_clk_en,
+            wea             => wr_en,
+               
+            addrb           => rd_addr,
+            doutb           => rd_dout,
+            enb             => '1',         -- think rd_clk_en always being high is fine 
+            regceb          => rd_en,
+      
+            injectdbiterra  => '0',
+            injectsbiterra  => '0', 
+            sbiterrb        => open,  
+            dbiterrb        => open, 
+            sleep           => '0'
         );
-    
+
 
 
 end rtl;
