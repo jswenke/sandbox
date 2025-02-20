@@ -76,7 +76,7 @@ full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
 
 
 PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
-    if(rst_n = '1') then
+    if(rst_n = '0') then
         bin_count_reg   <= (others=>'0'); 
         gray_count_reg  <= (others=>'0');
     else
