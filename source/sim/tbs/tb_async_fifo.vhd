@@ -24,8 +24,8 @@ library IEEE;
     use IEEE.NUMERIC_STD.ALL;
 
 library utils_lib;
-    use utils_lib.all;
-
+    use utils_lib.tb_and_sim_pack.all;
+    use utils_lib.async_fifo;
 
 entity tb_async_fifo is
     generic (
@@ -39,13 +39,14 @@ end tb_async_fifo;
 
 architecture tb of tb_async_fifo is
 
+
     constant wr_clk_period : time := 10ns;
     constant rd_clk_period : time := 20ns;
 
     signal tb_wr_clk    : std_logic := '0';
     signal tb_wr_rst_n  : std_logic := '1';
     signal tb_wr_en     : std_logic_vector := (others=>'0');
-    signal tb_wr_din    : std_logic_vector(TB_G_FIFO_DATAWIDTH-1 downto 0);
+    signal tb_wr_din    : std_logic_vector(TB_G_FIFO_DATAWIDTH-1 downto 0) := (others=>'0');
     
     signal tb_rd_clk    : std_logic := '0';
     signal tb_rd_rst_n  : std_logic := '1';
@@ -55,8 +56,12 @@ architecture tb of tb_async_fifo is
     signal tb_full  : std_logic := 'Z';
     signal tb_empty : std_logic := 'Z';
     
+    -- double check this syntax
+    signal tb_arr_rec_dw32_and_wren : arr_rec_dw32_and_wren := INIT_ARR_REC_DW32_WREN;
+    
     
 begin
+
 
     UUT_ASYNC_FIFO: entity utils_lib.async_fifo(rtl)
         generic map (         
@@ -89,7 +94,15 @@ begin
     STIMULUS: process
     begin
         -- drive rsts for a couple clk periods
-    
+        wr_rst_n <= '0';
+        rd_rst_n <= '0';
+        wait for clk_period*5;
+        wr_rst_n <= '1';
+        rd_rst_n <= '1';
+        wait for clk_period*5;
+        
+        
+        
     
         wait;
     end process;        

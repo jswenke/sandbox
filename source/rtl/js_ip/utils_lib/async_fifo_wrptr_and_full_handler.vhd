@@ -64,39 +64,39 @@ architecture rtl of async_fifo_wrptr_and_full_handler is
 begin
 
 
-bin_count_next <=  Bitwise_OR(bin_count_reg,(inc and not(full)));
-
-addrbin <= bin_count_reg(G_FIFO_ADDRWIDTH-2 downto 0);
-wrptr   <= gray_count_reg; 
-
-wrsynced_rdptr_check(G_FIFO_ADDRWIDTH)              <= not(wrsynced_rdptr(G_FIFO_ADDRWIDTH));
-wrsynced_rdptr_check(G_FIFO_ADDRWIDTH-1 downto 0)   <= wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0);
-
-full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
-
-
-PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
-    if(rst_n = '0') then
-        bin_count_reg   <= (others=>'0'); 
-        gray_count_reg  <= (others=>'0');
-    else
-        if(rising_edge(clk)) then
-            bin_count_reg   <= bin_count_next; 
-            gray_count_reg  <= gray_count_next;
-            full            <= full_val;
+    bin_count_next <=  Bitwise_OR(bin_count_reg,(inc and not(full)));
+    
+    addrbin <= bin_count_reg(G_FIFO_ADDRWIDTH-2 downto 0);
+    wrptr   <= gray_count_reg; 
+    
+    wrsynced_rdptr_check(G_FIFO_ADDRWIDTH)              <= not(wrsynced_rdptr(G_FIFO_ADDRWIDTH));
+    wrsynced_rdptr_check(G_FIFO_ADDRWIDTH-1 downto 0)   <= wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0);
+    
+    full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
+    
+    
+    PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
+        if(rst_n = '0') then
+            bin_count_reg   <= (others=>'0'); 
+            gray_count_reg  <= (others=>'0');
+        else
+            if(rising_edge(clk)) then
+                bin_count_reg   <= bin_count_next; 
+                gray_count_reg  <= gray_count_next;
+                full            <= full_val;
+            end if;
         end if;
-    end if;
-end process;                                   
- 
- 
-INST_BINARY2GRAY : entity utils_lib.binary2gray(rtl)
-    generic map (
-        G_WIDTH => G_FIFO_ADDRWIDTH
-    )
-    port map (
-        bin_vec     => bin_count_next,
-        gray_vec    => gray_count_next    
-    );
+    end process;                                   
+     
+     
+    INST_BINARY2GRAY : entity utils_lib.binary2gray(rtl)
+        generic map (
+            G_WIDTH => G_FIFO_ADDRWIDTH
+        )
+        port map (
+            bin_vec     => bin_count_next,
+            gray_vec    => gray_count_next    
+        );
                  
 
 end rtl;
