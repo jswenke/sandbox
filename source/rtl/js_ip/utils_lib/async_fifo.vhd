@@ -95,6 +95,7 @@ architecture rtl of async_fifo is
     signal wr_clk_en: std_logic;
     signal wr_inc   : std_logic;
     signal rd_inc   : std_logic;
+    signal rd_rst   : std_logic;
 
     
     signal wr_bin_count_reg     : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
@@ -105,8 +106,6 @@ architecture rtl of async_fifo is
     signal wrsynced_rdptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal rdptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal rdptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wrsynced_rd_rst_n    : std_logic;
-    signal rd_rst_n_reg0        : std_logic;
     
     signal rdsynced_wrptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
     signal wrptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
@@ -180,6 +179,7 @@ begin
             addrbin         => rd_addr             
         );        
     
+    rd_rst <= not(rd_rst_n);
     
     INST_XPM_MEMORY_SDPRAM : xpm_memory_sdpram
         generic map (
@@ -193,7 +193,7 @@ begin
         port map (
             clka            => wr_clk,
             clkb            => rd_clk,
-            rstb            => rd_rst_n,
+            rstb            => rd_rst,
 
             addra           => wr_addr,
             dina            => wr_din,
