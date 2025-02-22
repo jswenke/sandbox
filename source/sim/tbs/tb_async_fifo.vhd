@@ -58,8 +58,9 @@ architecture tb of tb_async_fifo is
     
     -- double check this syntax
     signal tb_arr_rec_dw32_and_wren : arr_rec_dw32_and_wren := INIT_ARR_REC_DW32_WREN;
-    
-    
+    -- figure out syntax for making initializing the array of records with non-zero values
+    -- think it's something like INIT_REC_DW32_WREN.dw32(somethingsomething) 
+        
 begin
 
 
@@ -101,6 +102,7 @@ begin
         rd_rst_n <= '1';
         wait for clk_period*5;
         
+        --
         
         
     
