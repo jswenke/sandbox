@@ -50,11 +50,11 @@ end async_fifo_wrptr_and_full_handler;
 architecture rtl of async_fifo_wrptr_and_full_handler is
     
     
-    signal bin_count_reg    : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal bin_count_next   : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal bin_count_reg    : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal bin_count_next   : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
     
-    signal gray_count_reg   : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal gray_count_next  : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal gray_count_reg   : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal gray_count_next  : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
     
     signal full_val : std_logic;
     
@@ -64,9 +64,9 @@ architecture rtl of async_fifo_wrptr_and_full_handler is
 begin
 
 
-    bin_count_next <=  Bitwise_OR(bin_count_reg,(inc and not(full)));
+    bin_count_next <=  Bitwise_OR_9b(bin_count_reg,(inc and not(full)));
     
-    addrbin <= bin_count_reg(G_FIFO_ADDRWIDTH-2 downto 0);
+    addrbin <= bin_count_reg(G_FIFO_ADDRWIDTH-1 downto 0);
     wrptr   <= gray_count_reg; 
     
     wrsynced_rdptr_check(G_FIFO_ADDRWIDTH)              <= not(wrsynced_rdptr(G_FIFO_ADDRWIDTH));
@@ -91,7 +91,7 @@ begin
      
     INST_BINARY2GRAY : entity utils_lib.binary2gray(rtl)
         generic map (
-            G_WIDTH => G_FIFO_ADDRWIDTH
+            G_WIDTH => G_FIFO_ADDRWIDTH+1
         )
         port map (
             bin_vec     => bin_count_next,

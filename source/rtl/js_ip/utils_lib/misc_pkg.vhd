@@ -28,14 +28,14 @@ library UNISIM;
 
 package misc_pkg is
 
-    function Bitwise_OR(
-            i_vector: std_logic_vector;
-            i_bit   : std_logic)
+    function Bitwise_OR_9b(
+            i_vector    : std_logic_vector(8 downto 0);
+            i_bit       : std_logic)
             return std_logic_vector;
 
-    function Bitwise_AND(
-            i_vector: std_logic_vector;
-            i_bit   : std_logic)
+    function Bitwise_AND_8b(
+            i_vector    : std_logic_vector(7 downto 0);
+            i_bit       : std_logic)
             return std_logic_vector;
 
 
@@ -44,15 +44,15 @@ end package misc_pkg;
 package body misc_pkg is
 
     --------------------------------------------
-    function Bitwise_OR(
-            i_vector: std_logic_vector;
-            i_bit   : std_logic)
+    function Bitwise_OR_9b(
+            i_vector    : std_logic_vector(8 downto 0);
+            i_bit       : std_logic)
             return std_logic_vector is
         
-        variable o_vector : std_logic_vector;
-        variable vec_len : integer; 
+        variable o_vector : std_logic_vector(8 downto 0);
+        variable vec_len : integer;
     begin
-        vec_len := i_vector'length;
+        vec_len := i_vector'length;              
         
         for i in 0 to vec_len-1 loop
             o_vector(i) := i_vector(i) or i_bit;
@@ -63,15 +63,15 @@ package body misc_pkg is
 
 
     --------------------------------------------
-    function Bitwise_AND(
-            i_vector: std_logic_vector;
-            i_bit   : std_logic)
+    function Bitwise_AND_8b(
+            i_vector    : std_logic_vector(7 downto 0);
+            i_bit       : std_logic)
             return std_logic_vector is
         
-        variable o_vector : std_logic_vector;
-        variable vec_len : integer; 
+        variable o_vector : std_logic_vector(7 downto 0);
+        variable vec_len : integer;
     begin
-        vec_len := i_vector'length;
+        vec_len := i_vector'length;              
         
         for i in 0 to vec_len-1 loop
             o_vector(i) := i_vector(i) and i_bit;

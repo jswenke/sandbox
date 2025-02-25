@@ -41,9 +41,9 @@ package tb_and_sim_pack is
         wren    => '0'
     );
     
-    constant INIT_ARR_REC_DW32_WREN : arr_rec_dw32_and_wren := (
-        others => INIT_REC_DW32_WREN
-    );
+--    constant INIT_ARR_REC_DW32_WREN : arr_rec_dw32_and_wren := (
+--        others => INIT_REC_DW32_WREN
+--    );
 
 
 
