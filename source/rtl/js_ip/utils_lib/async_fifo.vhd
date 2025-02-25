@@ -41,7 +41,7 @@ library utils_lib;
 
 entity async_fifo is
     Generic (         
-        G_FIFO_ADDRWIDTH : integer := 4; -- 2^(ADDRWIDTH-1) = FIFO Depth
+        G_FIFO_ADDRWIDTH : integer := 8; -- 2^(ADDRWIDTH-1) = FIFO Depth
         G_FIFO_DEPTH     : integer := 16;
         G_FIFO_DATAWIDTH : integer := 32
     );
@@ -85,10 +85,10 @@ architecture rtl of async_fifo is
     type type_fifo is array (0 to G_FIFO_DEPTH-1) of std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
         signal fifo_inf : type_fifo := (others=>(others=>'0'));
 
-    signal rd_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
-    signal rd_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
-    signal wr_pntr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0) := (others=>'0');
-    signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-2 downto 0) := (others=>'0');
+    signal rd_pntr : std_logic_vector(G_FIFO_ADDRWIDTH downto 0)    := (others=>'0');
+    signal rd_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0)  := (others=>'0');
+    signal wr_pntr : std_logic_vector(G_FIFO_ADDRWIDTH downto 0)    := (others=>'0');
+    signal wr_addr : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0)  := (others=>'0');
 
     
     -- wr/full handler signals
@@ -97,19 +97,13 @@ architecture rtl of async_fifo is
     signal rd_inc   : std_logic;
     signal rd_rst   : std_logic;
 
+    signal wrsynced_rdptr       : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal rdptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal rdptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
     
-    signal wr_bin_count_reg     : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_bin_count_next    : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_gray_count_reg    : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wr_gray_count_next   : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    
-    signal wrsynced_rdptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal rdptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal rdptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    
-    signal rdsynced_wrptr       : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wrptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
-    signal wrptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0);
+    signal rdsynced_wrptr       : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal wrptr_reg0           : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+    signal wrptr_reg1           : std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
     
     
 begin

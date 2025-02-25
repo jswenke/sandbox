@@ -29,7 +29,7 @@ library utils_lib;
 
 entity tb_async_fifo is
     generic (
-        TB_G_FIFO_ADDRWIDTH : integer := 4;
+        TB_G_FIFO_ADDRWIDTH : integer := 8;
         TB_G_FIFO_DEPTH     : integer := 16;
         TB_G_FIFO_DATAWIDTH : integer := 32
     );
@@ -45,7 +45,7 @@ architecture tb of tb_async_fifo is
 
     signal tb_wr_clk    : std_logic := '0';
     signal tb_wr_rst_n  : std_logic := '1';
-    signal tb_wr_en     : std_logic_vector := (others=>'0');
+    signal tb_wr_en     : std_logic_vector(0 downto 0) := (others=>'0');
     signal tb_wr_din    : std_logic_vector(TB_G_FIFO_DATAWIDTH-1 downto 0) := (others=>'0');
     
     signal tb_rd_clk    : std_logic := '0';
@@ -57,7 +57,7 @@ architecture tb of tb_async_fifo is
     signal tb_empty : std_logic := 'Z';
     
     -- double check this syntax
-    signal tb_arr_rec_dw32_and_wren : arr_rec_dw32_and_wren := INIT_ARR_REC_DW32_WREN;
+    -- signal tb_arr_rec_dw32_and_wren : arr_rec_dw32_and_wren := INIT_ARR_REC_DW32_WREN;
     -- figure out syntax for making initializing the array of records with non-zero values
     -- think it's something like INIT_REC_DW32_WREN.dw32(somethingsomething) 
         
@@ -95,16 +95,50 @@ begin
     STIMULUS: process
     begin
         -- drive rsts for a couple clk periods
-        wr_rst_n <= '0';
-        rd_rst_n <= '0';
-        wait for clk_period*5;
-        wr_rst_n <= '1';
-        rd_rst_n <= '1';
-        wait for clk_period*5;
+        tb_wr_rst_n <= '0';
+        tb_rd_rst_n <= '0';
+        wait for wr_clk_period*5;
+        tb_wr_rst_n <= '1';
+        tb_rd_rst_n <= '1';
+        wait for wr_clk_period*5;
         
         --
+        tb_wr_en    <= "1";
+        tb_wr_din   <= X"0600_0090";
+        wait for wr_clk_period*2;
+        tb_wr_en    <= "0";
+        wait for wr_clk_period*2;
+        
+        tb_wr_en    <= "1";
+        tb_wr_din   <= X"0BAD_BAD0";
+        wait for wr_clk_period*2;
+        tb_wr_en    <= "0";
+        wait for wr_clk_period*2;
+        
+        tb_wr_en    <= "1";
+        tb_wr_din   <= X"8008_5135";
+        wait for wr_clk_period*2;
+        tb_wr_en    <= "0";
+        wait for wr_clk_period*2;
+        
+        wait for wr_clk_period*10;
         
         
+        tb_rd_en    <= '1';
+        wait for rd_clk_period*2;
+        tb_rd_en    <= '0';
+        wait for rd_clk_period*2;
+        
+        tb_rd_en    <= '1';
+        wait for rd_clk_period*2;
+        tb_rd_en    <= '0';
+        wait for rd_clk_period*2;
+        
+        tb_rd_en    <= '1';
+        wait for rd_clk_period*2;
+        tb_rd_en    <= '0';
+        wait for rd_clk_period*2;
+    
     
         wait;
     end process;        
