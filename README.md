@@ -54,29 +54,6 @@ Update description here
 |  |   |
 
 ## Notes
-### Daily
-1/20/25: Make scripts dir and .tcl/.sh's for making/building project next
-
-1/22/25: Update scripts to include synth/impl and contraints stuff, then add git guide or something
-
-1/26/25: Start looking into tying UART together with async fifo, writing the fifo, etc.
-Also look into adding a build ID functionality/register to keep track of builds when running/testing multiple
-
-1/27/25: 
-http://www.sunburst-design.com/papers/CummingsSNUG2002SJ_FIFO1.pdf
-Was reading this paper on async FIFO design, planning to follow some of the design recommendations and implement an async FIFO to test the UART RX/TX with
-
-1/28/25:
-Started barebones async fifo, wrote out some signals, types, etc. Read a bit more of the sunburst paper
-
-1/29/25:
-Read through gray code portions of sunburst paper. Some interesting considerations and I'd like to see what the benefit to doing this for clock domain crossings is. Did a lot of constraints writing at work today so brain is mush
-
-2/2/25:
-Included pic of gray code counters to be implemented for the FIFO wrptr and rdptr, started working on FIFO mem
-
-2/6/25:
-Wrote quick binary to gray converter and testbench for it to use in the FIFO modules, need to actually run the TB still
 
 ### Misc.
 
