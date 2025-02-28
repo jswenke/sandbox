@@ -32,9 +32,6 @@ library IEEE;
 library UNISIM;
     use UNISIM.VComponents.all;
 
-Library xpm;
-    use xpm.vcomponents.all;
-
 library utils_lib;
     use utils_lib.all;
 
@@ -68,19 +65,6 @@ end async_fifo;
 
 architecture rtl of async_fifo is
 
-
-    COMPONENT blk_mem_dram_0
-      PORT (
-        clka : IN STD_LOGIC;
-        ena : IN STD_LOGIC;
-        wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-        addra : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-        dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        clkb : IN STD_LOGIC;    
-        addrb : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-        doutb : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
-      );
-    END COMPONENT;
 
     type type_fifo is array (0 to G_FIFO_DEPTH-1) of std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
         signal fifo_inf : type_fifo := (others=>(others=>'0'));
@@ -175,35 +159,22 @@ begin
     
     rd_rst <= not(rd_rst_n);
     
-    INST_XPM_MEMORY_SDPRAM : xpm_memory_sdpram
+    INST_SDPRAM: entity utils_lib.dpram(rtl)
         generic map (
-            ADDR_WIDTH_A         => G_FIFO_ADDRWIDTH,
-            ADDR_WIDTH_B         => G_FIFO_ADDRWIDTH,
-            MEMORY_SIZE          => G_FIFO_DATAWIDTH * G_FIFO_DEPTH,
-            READ_DATA_WIDTH_B    => G_FIFO_DATAWIDTH,
-            WRITE_DATA_WIDTH_A   => G_FIFO_DATAWIDTH,
-            BYTE_WRITE_WIDTH_A   => G_FIFO_DATAWIDTH                -- word-long write
+            DEPTH_WIDTH => 512,
+            ADDR_WIDTH  => 8,
+            DATA_WIDTH  => 32
         )
         port map (
-            clka            => wr_clk,
-            clkb            => rd_clk,
-            rstb            => rd_rst,
-
-            addra           => wr_addr,
-            dina            => wr_din,
-            ena             => wr_clk_en,
-            wea             => wr_en,
-               
-            addrb           => rd_addr,
-            doutb           => rd_dout,
-            enb             => '1',         -- think rd_clk_en always being high is fine 
-            regceb          => rd_en,
-      
-            injectdbiterra  => '0',
-            injectsbiterra  => '0', 
-            sbiterrb        => open,  
-            dbiterrb        => open, 
-            sleep           => '0'
+            --
+            clk     => wr_clk,
+            ena     => wr_en(0),
+            enb     => rd_en,
+            wea     => wr_clk_en,
+            addra   => wr_addr,
+            addrb   => rd_addr,
+            dia     => wr_din,
+            dob     => rd_dout   
         );
 
 
