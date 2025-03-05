@@ -72,8 +72,8 @@ begin
     wrsynced_rdptr_check(G_FIFO_ADDRWIDTH)              <= not(wrsynced_rdptr(G_FIFO_ADDRWIDTH));
     wrsynced_rdptr_check(G_FIFO_ADDRWIDTH-1 downto 0)   <= wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0);
     
-    full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
-    
+    --full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
+    full_val <= '1' when (gray_count_next = not(wrsynced_rdptr(G_FIFO_ADDRWIDTH)) & wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0));
     
     PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
         if(rst_n = '0') then
