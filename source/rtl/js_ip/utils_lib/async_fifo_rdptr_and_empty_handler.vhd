@@ -40,8 +40,8 @@ entity async_fifo_rdptr_and_empty_handler is
                 rst_n           : in std_logic;            
                 inc             : in std_logic;    
                         
-                rdsynced_wrptr  : inout std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
-                empty           : inout std_logic;            
+                rdsynced_wrptr  : in std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+                empty           : buffer std_logic;            
                             
                 rdptr   : out std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
                 addrbin : out std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0)             
@@ -71,13 +71,14 @@ bin_count_next <=  Bitwise_OR_9b(bin_count_reg,(inc and not(empty)));
 addrbin <= bin_count_reg(G_FIFO_ADDRWIDTH-1 downto 0);
 rdptr   <= gray_count_reg; 
 
-empty_val <= '1' when (gray_count_next = rdsynced_wrptr);
+empty_val <= '1' when (gray_count_next = rdsynced_wrptr) else '0';
 
 
 PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
     if(rst_n = '0') then
         bin_count_reg   <= (others=>'0'); 
         gray_count_reg  <= (others=>'0');
+        empty           <= '1';
     else
         if(rising_edge(clk)) then
             bin_count_reg   <= bin_count_next; 

@@ -38,8 +38,8 @@ entity async_fifo_wrptr_and_full_handler is
             rst_n           : in std_logic;            
             inc             : in std_logic;    
                     
-            wrsynced_rdptr  : inout std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
-            full            : inout std_logic;            
+            wrsynced_rdptr  : in std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
+            full            : buffer std_logic;            
                         
             wrptr   : out std_logic_vector(G_FIFO_ADDRWIDTH downto 0);
             addrbin : out std_logic_vector(G_FIFO_ADDRWIDTH-1 downto 0)             
@@ -73,12 +73,13 @@ begin
     wrsynced_rdptr_check(G_FIFO_ADDRWIDTH-1 downto 0)   <= wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0);
     
     --full_val <= '1' when (gray_count_next = wrsynced_rdptr_check);
-    full_val <= '1' when (gray_count_next = not(wrsynced_rdptr(G_FIFO_ADDRWIDTH)) & wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0));
+    full_val <= '1' when (gray_count_next = not(wrsynced_rdptr(G_FIFO_ADDRWIDTH)) & wrsynced_rdptr(G_FIFO_ADDRWIDTH-1 downto 0)) else '0';
     
     PROC_BINARY_AND_GRAY_REGS : process(clk, rst_n) begin
         if(rst_n = '0') then
             bin_count_reg   <= (others=>'0'); 
             gray_count_reg  <= (others=>'0');
+            full            <= '0';
         else
             if(rising_edge(clk)) then
                 bin_count_reg   <= bin_count_next; 

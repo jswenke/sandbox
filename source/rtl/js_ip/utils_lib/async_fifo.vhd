@@ -56,8 +56,8 @@ entity async_fifo is
         rd_dout : out std_logic_vector(G_FIFO_DATAWIDTH-1 downto 0);
 
         -- status
-        full : inout std_logic;
-        empty: inout std_logic
+        full : buffer std_logic;
+        empty: buffer std_logic
 
     );
 end async_fifo;
