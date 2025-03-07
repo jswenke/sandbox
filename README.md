@@ -55,6 +55,13 @@ Update description here
 
 ## Notes
 
+### To-do
+- Add portion to import_ip for xilinx/3rd party IP's in the build script
+- Decide on link protocol for SW to Xilinx MIG to AXI interconnect
+- Reorganize/rename sources for clarity
+- Add build option updates/build dependencies
+- Along with last bullet, add options in build prompt for what sources to include in project? Could make separate folders that have self-written example designs, and potentially TB's, for each of the IPs being worked on to reduce clutter in the source hierarchy 
+
 ### Misc.
 
 

@@ -1,0 +1,3 @@
+For IPs being generated from .xci's, and .xcix's:
+Drop folder for IP, name folder (your_ip_name), and drop IP .xci/.xcix named <your_ip_name.xci> within that folder
+This will allow the build script to properly include it and generate output products
