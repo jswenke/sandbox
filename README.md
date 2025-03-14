@@ -64,6 +64,8 @@ Update description here
 
 - Start doing some audio processing stuff, store audio data from the mic in RAM
 - Look into writing MAC/MII/Ethernet modules again
+- Spec sheet/design document
+
 
 ### Misc.
 
