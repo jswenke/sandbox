@@ -62,10 +62,13 @@ Update description here
 - Add build option updates/build dependencies
 - Along with last bullet, add options in build prompt for what sources to include in project? Could make separate folders that have self-written example designs, and potentially TB's, for each of the IPs being worked on to reduce clutter in the source hierarchy 
 
+
 - Start doing some audio processing stuff, store audio data from the mic in RAM
 - Look into writing MAC/MII/Ethernet modules again
 - Spec sheet/design document
 
+
+- Finish TB testing/debug of async_fifo module
 
 ### Misc.
 
