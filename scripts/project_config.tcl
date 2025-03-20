@@ -25,18 +25,23 @@ proc addHDL {} {
 
 	global PROJECT_NAME
 	global sourceDir
+	global projectDir
 	
-	# design sources
+	# read design sources
 	read_vhdl [glob $sourceDir/rtl/*.vhd]
 	set_property top ${PROJECT_NAME}_top [current_fileset]
 	read_vhdl [glob $sourceDir/rtl/*/*.vhd]	
 	read_vhdl [glob $sourceDir/rtl/*/*/*.vhd]	
+	
 	set_property library utils_lib [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
 	set_property file_type {VHDL 2008} [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
+	
+	set_property library eth_lib [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*.vhd]] -quiet
+	set_property file_type {VHDL 2008} [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*.vhd]]  -quiet
 
-	# sim sources (tbs)
-	read_vhdl [glob $sourceDir/sim/tbs/*.vhd]	
-	set_property used_in_synthesis false [get_files [glob $sourceDir/sim/tbs/*.vhd]]
+	# read sim sources (tbs)
+	read_vhdl [glob $projectDir/sim/tbs/*.vhd]	
+	set_property used_in_synthesis false [get_files [glob $projectDir/sim/tbs/*.vhd]]
 
 }
 
@@ -45,7 +50,9 @@ proc genIP {} {
 	global PROJECT_NAME
 	global sourceDir
 
-	# no IP yet
+	# import .xci's
+	import_ip [glob -nocomplain $sourceDir/ip/xil_and_3rds_ip/xci/*.xci] -quiet
+	import_ip [glob -nocomplain $sourceDir/ip/xil_and_3rds_ip/xci/*/*.xci] -quiet
 	
 }
 
@@ -76,6 +83,7 @@ proc runSynthesis {} {
 		puts "Synthesis failed."
 		exit 1
 	}
+	
 }
 
 proc runImplementationAndGenBitstream {} {
@@ -95,4 +103,5 @@ proc runImplementationAndGenBitstream {} {
 
 proc getBitstreamImgs {} {
 	# WIP
+	
 }
