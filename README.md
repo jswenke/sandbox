@@ -70,6 +70,12 @@ Update description here
 
 - Finish TB testing/debug of async_fifo module
 
+- Long term goal is write PCIe RTL to MIG block design AXILite registers RTL (implemented on DDR ?)
+	- Subgoals (need to break these steps down further):
+	- axi_pack.vhd : setup AXILite bus and register array record and record array types
+	- eth_axi_regs_pack.vhd : break down registers needed for eth mac and instantiate register array/bus from axi_pack.vhd types
+	- axilite_registers.vhd : use eth_axi_regs_pack.vhd and a for generate process to iterate through register array and tie AXILite bus/reg signals in
+
 ### Misc.
 
 
