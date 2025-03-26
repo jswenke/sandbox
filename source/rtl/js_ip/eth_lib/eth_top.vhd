@@ -29,23 +29,84 @@
 
 library IEEE;
     use IEEE.STD_LOGIC_1164.ALL;
+    use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity eth_top is
---  Port ( );
+    port ( 
+        --
+        SYS_RST     : in std_logic;
+        CLK100MHZ   : in std_logic;
+        
+        -- eth
+        ETH_MDC     : out std_logic;                    -- management data clock (clock for teh MDIO serial channel)   
+        ETH_MDIO    : inout std_logic;                  -- management data input/output. bi-directional serial data channel for PHY/STA communication
+        --ETH_RSTN    : in std_logic;                     -- can make this general system reset          
+        ETH_CRSDV   : in std_logic;                     -- carrier sense - phy asynchronously asserts carrier sense signal after the medium is detected in a non-idle state. when deasserted, signal indiciates that the media is in an idle state (and the transmission can start)
+        
+        ETH_RXERR   : in std_logic;                     -- PHY asserts this to indiciate to the RX MAC that a media error was detected during transmission of current frame
+        ETH_RXD     : in std_logic_vector(1 downto 0);  -- receive data bits, when 
+        
+        ETH_TXEN    : out std_logic;                    -- TX enable, when asserted indicates to PHY that TXD(1:0) is valid and TX can start (remains asserted till all bits to be TX'd are presented to the PHY
+        ETH_TXD     : out std_logic_vector(1 downto 0)  -- TX data bits
+    
+    );
 end eth_top;
 
 architecture rtl of eth_top is
 
 begin
+
+
+-- ETH_RXETHMAC NOTES --
+-- In charge of RX'ing data
+-- External PHY chip:
+    -- receives serial data from the physical layer (cable)
+    -- assembles it into 2 bit packets (MRxD [1:0]), doesn't have a DV to go along with it in this example?
+    -- RX_ETHMAC then assembles the 2 bit packets into data bytes, and will send them elsewhere with a few signals   
+    -- SUBMODULES:
+        -- eth_crc          : Cyclic Rendundancy Check (CRC)
+        -- eth_rxaddrcheck  : address recognition module
+        -- eth_rxcounters   : counters needed for packet reception
+        -- eth_rxstatem     : fsm for rx module
+--INST_RX_ETHMAC:
+
+
+-- ETH_TXETHAMC NOTES --
+-- In charge of TX'ing data
+-- Will (eventually) get data from wishbone/PCIe/other in byte form 
+    -- SUBMODULES:
+        -- eth_crc          : Cyclic Rendundancy Check (CRC) generates 32-bit CRC appended to data field
+        -- eth_random       : generates random delay needed when back off is performed (after collision)
+        -- eth_txcounters   : counters needed for packet tx
+        -- eth_txstatem     : fsm for tx module
+--INST_TXETHMAC:
+
+
+-- ETH_MIIM NOTES --
+-- Used for setting PHY's configuration registers and reading status from it
+    -- SUBMODULES:
+        -- eth_clockgen     : generates MII clock signal (Mdc), used for clocking MII interface of teh PHY chip (READ DOC OF PHY CHIP ON NEXYS A7 TO SET MDC FREQ.)
+        -- eth_shiftreg     : serialize data that goes toward Eth PHY chip (Mdo), parallelize input data from Eth PHY chip )Mdi), generate linkfail signal
+        -- eth_outputcontrol: generates MII serial output signal (Mdo), generates enable signal (MdoEn) for Mdo
+--INST_ETH_MIIM:
+
+
+-- ETH_MACCONTROL NOTES --
+-- In charge of data flow control in full duplex mode
+    -- SUBMODULES:
+        -- eth_txcontrol    : 
+        -- eth_rxcontrol    :
+-- INST_ETH_MACCONTROL:
+     
+
+-- ETH_MACSTATUS NOTES --
+-- Monitors ethernet MAC operations
+--INST_ETH_MACSTATUS:
+
+
+-- Look more into this, but shouldn't be necessary for a loopback configuration
+--INST_ETHREGISTERS:
 
 
 end rtl;
