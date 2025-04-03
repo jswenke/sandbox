@@ -25,10 +25,20 @@ library IEEE;
 
 
 entity eth_crc is
---  Port ( );
+    port (
+        clk     : in std_logic;
+        rst     : in std_logic;
+        din     : in std_logic_vector(1 downto 0);
+        en      : in std_logic;
+        
+        crc     : out std_logic_vector(31 downto 0);
+        crc_err : out std_logic    
+    );
 end eth_crc;
 
 architecture rtl of eth_crc is
+
+    signal crc_next : std_logic_vector(31 downto 0);
 
 begin
 
