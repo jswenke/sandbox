@@ -45,6 +45,9 @@ end encode_8b10b;
 
 architecture rtl of encode_8b10b is
 
+    -- need to look more into what implementation to do 
+    -- implement in LUTs using logic equations or strictly in BRAM using a memory init file
+    -- if I go the LUT route, need better understanding of the logic equations explained in the tables/document
 
 begin
 
