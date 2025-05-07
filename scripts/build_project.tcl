@@ -20,9 +20,9 @@ genIP
 
 addConstraints
 
-runSynthesis
+#runSynthesis
 
-runImplementationAndGenBitstream
+#runImplementationAndGenBitstream
 
 # getBitstreamImgs
 

@@ -9,6 +9,9 @@ PROJECT_DIR="$( realpath $SCRIPT_DIR/../project )"
 #	XILINX_VIVADO=/z/Xilinx/Vivado/2019.1
 	
 #else
+
+source $SCRIPT_DIR/env.sh
+
 	if [ ! $(command -v vivado >/dev/null 2>&1)]; then
 
 		echo ""
@@ -39,7 +42,7 @@ PROJECT_DIR="$( realpath $SCRIPT_DIR/../project )"
 
 # do export XILINX_VIVADO = <path/to/vivado>
 # EX: /c/Xilinx/Vivado/2019.1
-$XILINX_VIVADO/bin/vivado.bat -mode batch -source $SCRIPT_DIR/build_project.tcl
+$XILINX_VIVADO/bin/vivado -mode batch -source $SCRIPT_DIR/build_project.tcl
 
 rm $SCRIPT_DIR/*.jou 2> /dev/null
 rm $SCRIPT_DIR/*.log 2> /dev/null

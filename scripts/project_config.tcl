@@ -28,10 +28,10 @@ proc addHDL {} {
 	global projectDir
 	
 	# read design sources
-	read_vhdl [glob $sourceDir/rtl/*.vhd]
+	read_vhdl [glob -nocomplain $sourceDir/rtl/*.vhd] -quiet
 	set_property top ${PROJECT_NAME}_top [current_fileset]
-	read_vhdl [glob $sourceDir/rtl/*/*.vhd]	
-	read_vhdl [glob $sourceDir/rtl/*/*/*.vhd]	
+	read_vhdl [glob -nocomplain $sourceDir/rtl/*/*.vhd] -quiet
+	read_vhdl [glob -nocomplain $sourceDir/rtl/*/*/*.vhd] -quiet
 	
 	set_property library utils_lib [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
 	set_property file_type {VHDL 2008} [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
@@ -40,8 +40,8 @@ proc addHDL {} {
 	set_property file_type {VHDL 2008} [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*.vhd]]  -quiet
 
 	# read sim sources (tbs)
-	read_vhdl [glob $projectDir/sim/tbs/*.vhd]	
-	set_property used_in_synthesis false [get_files [glob $projectDir/sim/tbs/*.vhd]]
+	read_vhdl [glob -nocomplain  $projectDir/sim/tbs/*.vhd]	-quiet
+	set_property used_in_synthesis false [get_files [glob -nocomplain $projectDir/sim/tbs/*.vhd]] -quiet
 
 }
 
@@ -70,7 +70,7 @@ proc addConstraints {} {
 	
 	create_fileset -constrset constr_set_others
 	file mkdir $projectDir/${PROJECT_NAME}.srcs/constr_set_others
-	add_files -fileset constr_set_others [glob $constraintsDir/*.xdc]
+	add_files -fileset constr_set_others [glob -nocomplain $constraintsDir/*.xdc] -quiet
 	
 }
 
