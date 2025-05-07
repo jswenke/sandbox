@@ -32,11 +32,13 @@ proc addHDL {} {
 	set_property top ${PROJECT_NAME}_top [current_fileset]
 	read_vhdl [glob -nocomplain $sourceDir/rtl/*/*.vhd] -quiet
 	read_vhdl [glob -nocomplain $sourceDir/rtl/*/*/*.vhd] -quiet
+	read_vhdl [glob -nocomplain $sourceDir/rtl/*/*/*/*.vhd] -quiet
 	
 	set_property library utils_lib [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
 	set_property file_type {VHDL 2008} [get_files [glob $sourceDir/rtl/js_ip/utils_lib/*.vhd]]
 	
 	set_property library eth_lib [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*.vhd]] -quiet
+	set_property library eth_lib [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*/*.vhd]] -quiet
 	set_property file_type {VHDL 2008} [get_files [glob -nocomplain $sourceDir/rtl/js_ip/eth_lib/*.vhd]]  -quiet
 
 	# read sim sources (tbs)

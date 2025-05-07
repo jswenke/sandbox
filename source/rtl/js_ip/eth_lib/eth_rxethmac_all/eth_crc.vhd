@@ -28,11 +28,11 @@ entity eth_crc is
     port (
         clk     : in std_logic;
         rst     : in std_logic;
-        din     : in std_logic_vector(1 downto 0);
+        din     : in std_logic_vector(3 downto 0);
         en      : in std_logic;
         init    : in std_logic;
         crc     : buffer std_logic_vector(31 downto 0);
-        crc_err : out std_logic    
+        err_crc : out std_logic    
     );
 end eth_crc;
 
@@ -95,7 +95,7 @@ begin
         end if;
     end process;
     
-    crc_err <= '1' when crc = not(x"c704_dd7b") else '1';                                                                                              
+    err_crc <= '1' when crc = not(x"c704_dd7b") else '1';                                                                                              
     
     
     
